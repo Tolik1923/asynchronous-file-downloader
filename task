@@ -1,0 +1,28 @@
+import asyncio
+import aiohttp
+
+async def download(session, url):
+    async with session.get(url) as response:
+        if response.status == 200:
+            print(f"Started downloading a file from {url}")
+            name = url.split("/")[-1]
+            content = await response.read()
+            with open(name, "wb") as f:
+                f.write(content)
+        else:
+            print(f"Failed to download file from {url}")
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        while True:
+            url = input("Please enter the file URL to download: ")
+            if not url:
+                break
+            task = asyncio.create_task(download(session, url))
+            tasks.append(task)
+        
+        await asyncio.gather(*tasks)
+
+if __name__ == "__main__":
+    asyncio.run(main())
